@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verix — AI Cyber & UPI Fraud Detection Dashboard</title>
+  <meta name="description" content="Verix Real-Time AI Cyber & UPI Fraud Detection System and Bank Admin Dashboard" />
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════════
+       1. AUTHENTICATION / LOGIN SCREEN
+  ══════════════════════════════════════════════════════ -->
+  <div id="screen-login" class="screen active">
+    <div class="cyber-grid-bg"></div>
+    <div class="glow-orb orb-emerald"></div>
+    <div class="glow-orb orb-crimson"></div>
+    <div class="glow-orb orb-navy"></div>
+
+    <div class="login-container">
+      <div class="login-card glassmorphism">
+        <!-- Logo -->
+        <div class="brand-header">
+          <div class="shield-logo">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(16,185,129,0.1)" stroke="#10B981"/>
+              <path d="m9 12 2 2 4-4" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="brand-titles">
+            <h1 class="brand-name">VERIX</h1>
+            <span class="brand-tag">AI Cyber & Fraud Defense</span>
+          </div>
+        </div>
+
+        <div class="login-heading">
+          <h2>Admin & Officer Portal</h2>
+          <p>Real-time telemetry, NPCI Gateway & I4C Scam Intelligence</p>
+        </div>
+
+        <form id="login-form" class="cyber-form" onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label class="form-label" for="login-email">Officer / Admin ID</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="login-email" class="cyber-input" value="admin@verix.gov.in" placeholder="admin@verix.gov.in" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="login-pass">Security Token / Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              </span>
+              <input type="password" id="login-pass" class="cyber-input" value="cyber123" placeholder="••••••••" required />
+              <button type="button" class="btn-toggle-eye" onclick="togglePassVisibility()" aria-label="Toggle password">
+                <svg id="eye-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="role-selector">
+            <label class="role-chip active" id="chip-admin" onclick="selectRole('admin')">
+              <input type="radio" name="role" value="admin" checked /> 
+              <span>Super Admin</span>
+            </label>
+            <label class="role-chip" id="chip-reviewer" onclick="selectRole('reviewer')">
+              <input type="radio" name="role" value="reviewer" /> 
+              <span>Fraud Reviewer</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-cyber-primary" id="btn-login">
+            <span class="btn-text">Authenticate & Access Console</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </form>
+
+        <div class="login-footer-info">
+          <div class="api-status-badge">
+            <span class="pulse-dot green"></span>
+            <span>API: <code>fruadsih.onrender.com</code> (Online)</span>
+          </div>
+          <p class="quick-credentials">Demo: <code>admin@verix.gov.in</code> / <code>cyber123</code></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       2. MAIN DASHBOARD SHELL
+  ══════════════════════════════════════════════════════ -->
+  <div id="screen-dashboard" class="screen hidden">
+
+    <!-- ── Left Sidebar Navigation ── -->
+    <aside class="verix-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="shield-logo small">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(16,185,129,0.15)" stroke="#10B981"/>
+            <path d="m9 12 2 2 4-4" stroke="#10B981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="title">VERIX</span>
+          <span class="version">v2.4 Live SIH</span>
+        </div>
+        <button class="btn-sidebar-collapse" onclick="toggleSidebar()" aria-label="Toggle Sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+      </div>
+
+      <!-- Quick System Status indicator -->
+      <div class="system-health-pill">
+        <div class="health-header">
+          <span class="label">AI Threat Sentinel</span>
+          <span class="status-live"><span class="pulse-dot green"></span> ACTIVE</span>
+        </div>
+        <div class="threat-meter">
+          <div class="meter-fill" id="sidebar-threat-bar" style="width: 24%;"></div>
+        </div>
+      </div>
+
+      <!-- Navigation items -->
+      <nav class="sidebar-nav">
+        <div class="nav-group-title">MAIN SURVEILLANCE</div>
+        <button class="nav-link active" onclick="switchView('pre-check')" id="nav-pre-check">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><circle cx="12" cy="11" r="3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </span>
+          <span class="text">Pre-Payment Check</span>
+          <span class="badge red pulse" id="badge-active-threats">ALERT</span>
+        </button>
+
+        <button class="nav-link" onclick="switchView('menu')" id="nav-menu">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="7" cy="15" r="1"/></svg>
+          </span>
+          <span class="text">Accounts & Cards</span>
+          <span class="badge gray" id="badge-cards-count">8</span>
+        </button>
+
+        <button class="nav-link" onclick="switchView('user')" id="nav-user">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>
+          </span>
+          <span class="text">Threat Message Hub</span>
+          <span class="badge amber" id="badge-unread-msgs">3</span>
+        </button>
+
+        <div class="nav-group-title">INTELLIGENCE & AUDIT</div>
+        <button class="nav-link" onclick="switchView('threat-feed')" id="nav-threat-feed">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </span>
+          <span class="text">I4C Scam Intel Feeds</span>
+        </button>
+
+        <button class="nav-link" onclick="switchView('blacklist')" id="nav-blacklist">
+          <span class="icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+          </span>
+          <span class="text">VPA Blacklist (1930)</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar user footer -->
+      <div class="sidebar-user-footer">
+        <div class="user-avatar-badge">
+          <div class="avatar" id="officer-avatar">AD</div>
+          <div class="meta">
+            <span class="name" id="officer-name">Special Officer</span>
+            <span class="dept">Cyber Fraud Desk #7</span>
+          </div>
+        </div>
+        <button class="btn-icon-logout" onclick="handleLogout()" title="Terminate Session">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </aside>
+
+
+    <!-- ── Main Content Area ── -->
+    <main class="verix-main">
+
+      <!-- Top Header Bar -->
+      <header class="verix-topbar">
+        <div class="topbar-left">
+          <button class="btn-mobile-menu" onclick="toggleMobileSidebar()" aria-label="Open mobile menu">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+          <div>
+            <h1 class="view-title" id="page-title">Pre-Payment Threat Check</h1>
+            <span class="view-subtitle" id="page-subtitle">Real-time NPCI VPA risk scan & NLP call interception</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Live API status indicator -->
+          <div class="api-pill-status">
+            <span class="pulse-dot green" id="topbar-api-dot"></span>
+            <span class="text" id="topbar-api-label">fruadsih.onrender.com (Live)</span>
+          </div>
+
+          <!-- Quick search -->
+          <div class="search-box">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Scan VPA, Phone, Account..." id="global-search-input" onkeyup="handleGlobalSearch(event)" />
+          </div>
+
+          <!-- Quick threat alert bell -->
+          <button class="btn-top-alert" onclick="toggleThreatAlerts()" title="Threat Notifications">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="alert-dot pulse"></span>
+          </button>
+        </div>
+      </header>
+
+
+      <!-- ════════════════════════════════════════════════
+           VIEW 1: PRE-PAYMENT CHECK & DECISION FLOW (/pre-check)
+      ════════════════════════════════════════════════ -->
+      <section class="content-view" id="view-pre-check">
+        
+        <!-- Metrics bar -->
+        <div class="metrics-grid">
+          <div class="metric-card glassmorphism">
+            <div class="icon-wrap emerald">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="metric-data">
+              <span class="val" id="metric-safe">1,482</span>
+              <span class="lbl">Safe Transactions Today</span>
+            </div>
+            <span class="delta positive">+98.2%</span>
+          </div>
+
+          <div class="metric-card glassmorphism">
+            <div class="icon-wrap crimson">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </div>
+            <div class="metric-data">
+              <span class="val" id="metric-blocked">47</span>
+              <span class="lbl">Threats Intercepted</span>
+            </div>
+            <span class="delta negative">₹32.4L Saved</span>
+          </div>
+
+          <div class="metric-card glassmorphism">
+            <div class="icon-wrap amber">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div class="metric-data">
+              <span class="val" id="metric-arrests">12</span>
+              <span class="lbl">Digital Arrest Calls</span>
+            </div>
+            <span class="delta amber-tag">Active Alert</span>
+          </div>
+
+          <div class="metric-card glassmorphism">
+            <div class="icon-wrap blue">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <div class="metric-data">
+              <span class="val">38 ms</span>
+              <span class="lbl">Mean AI Risk Latency</span>
+            </div>
+            <span class="delta neutral">Render GPU</span>
+          </div>
+        </div>
+
+
+        <!-- Main Split: Live Threat Queue on Left, Decision Flow Panel on Right -->
+        <div class="flow-layout">
+          
+          <!-- LEFT: Intercepted Payments Queue -->
+          <div class="panel glassmorphism queue-sidebar">
+            <div class="panel-header">
+              <div class="title-with-pill">
+                <h3>Incoming UPI Streams</h3>
+                <span class="live-count-chip" id="queue-count-chip">4 Pending</span>
+              </div>
+              <button class="btn-refresh" onclick="loadSampleQueue()" title="Reload Feed">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              </button>
+            </div>
+
+            <div class="queue-list" id="queue-list">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Quick Preset Test Cases -->
+            <div class="preset-triggers">
+              <div class="preset-label">Test Simulated Threat Scenarios:</div>
+              <div class="preset-buttons">
+                <button class="btn-preset scam" onclick="fillScenario('digital_arrest')">🚨 Digital Arrest</button>
+                <button class="btn-preset scam" onclick="fillScenario('phishing_sms')">⚠️ Phishing APK</button>
+                <button class="btn-preset safe" onclick="fillScenario('safe_payment')">🟢 Safe Grocery</button>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- RIGHT: Interactive Dynamic Flow (Form -> Verification -> Waiting -> Payment OR Warning) -->
+          <div class="panel glassmorphism flow-display-stage" id="flow-container">
+
+            <!-- ══════ FLOW STEP 1: PRE-PAYMENT CHECK FORM ══════ -->
+            <div class="flow-card-box" id="flow-step-check">
+              <div class="flow-card-header">
+                <div class="step-indicator">STEP 1 OF 3</div>
+                <h2>Pre-Payment Threat Check</h2>
+                <p>Run deep AI heuristic check against NPCI databases, honeypot VPAs & live call telemetry</p>
+              </div>
+
+              <form id="pre-check-form" class="pre-check-form" onsubmit="executeRiskCheck(event)">
+                <div class="input-grid-2">
+                  
+                  <div class="form-group">
+                    <label class="form-label" for="input-vpa">
+                      <span>UPI ID / VPA</span>
+                      <span class="req">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                      <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg></span>
+                      <input type="text" id="input-vpa" class="cyber-input mono" placeholder="e.g. 9477530475@paytm or user@okaxis" required />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="input-amt">
+                      <span>Amount (₹)</span>
+                      <span class="req">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                      <span class="input-icon currency">₹</span>
+                      <input type="number" id="input-amt" class="cyber-input mono" placeholder="5000" min="1" step="any" required />
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="input-grid-2">
+
+                  <div class="form-group">
+                    <label class="form-label" for="input-name">
+                      <span>Payee / Recipient Name</span>
+                      <span class="req">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                      <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+                      <input type="text" id="input-name" class="cyber-input" placeholder="e.g. CBI Cyber Crime Unit or Rahul Sharma" required />
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label">
+                      <span>Device Context Telemetry</span>
+                    </label>
+                    <div class="telemetry-switch-card">
+                      <div class="telemetry-info">
+                        <span class="tel-title">Active Phone Call Detected</span>
+                        <span class="tel-desc">High correlation with Digital Arrest scams</span>
+                      </div>
+                      <label class="switch">
+                        <input type="checkbox" id="input-active-call" />
+                        <span class="slider"></span>
+                      </label>
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="input-note">
+                    <span>Message / Threat Context / Extortion Note</span>
+                  </label>
+                  <div class="input-wrapper">
+                    <textarea id="input-note" class="cyber-textarea" rows="3" placeholder="Paste incoming SMS, extortion message, or transaction remark (e.g. 'Pay fine immediately or arrest warrant issued within 2 hours')..."></textarea>
+                  </div>
+                </div>
+
+                <div class="flow-actions">
+                  <button type="submit" class="btn-cyber-primary lg" id="btn-run-check">
+                    <span class="btn-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </span>
+                    <span class="btn-text">Check UPI Risk Score</span>
+                    <span class="btn-spinner hidden"></span>
+                  </button>
+                </div>
+              </form>
+            </div>
+
+
+            <!-- ══════ FLOW STEP 2: VERIFICATION SCREEN (APPROVED PATH) ══════ -->
+            <div class="flow-card-box hidden" id="flow-step-verify">
+              <div class="flow-card-header safe-header">
+                <div class="step-indicator safe">STEP 2 OF 3 • LOW RISK VALIDATED</div>
+                <h2>NPCI Domain & Recipient Verification</h2>
+                <p>Reputation checks passed. Confirm recipient handle before final ledger authorization.</p>
+              </div>
+
+              <div class="verification-details-grid">
+                <div class="verify-stat-box">
+                  <span class="stat-label">Recipient Name</span>
+                  <span class="stat-value" id="verify-display-name">Rahul Sharma</span>
+                </div>
+                <div class="verify-stat-box">
+                  <span class="stat-label">Verified VPA</span>
+                  <span class="stat-value mono text-emerald" id="verify-display-vpa">rahul@okaxis</span>
+                </div>
+                <div class="verify-stat-box">
+                  <span class="stat-label">Transaction Amount</span>
+                  <span class="stat-value mono" id="verify-display-amt">₹ 2,500.00</span>
+                </div>
+                <div class="verify-stat-box">
+                  <span class="stat-label">NPCI PSP Domain</span>
+                  <span class="stat-value" id="verify-display-psp">Axis Bank (Safe 99.8%)</span>
+                </div>
+              </div>
+
+              <div class="npc-reputation-banner">
+                <div class="rep-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+                </div>
+                <div class="rep-text">
+                  <strong>AI Confidence Score: 98.4% Safe</strong>
+                  <p>No active cyber fraud complaints in I4C database. Age of VPA handle is > 18 months.</p>
+                </div>
+              </div>
+
+              <div class="form-group mt-16">
+                <label class="form-label" for="verify-submit-to">Submit To Department / Approver Desk</label>
+                <div class="input-wrapper">
+                  <span class="input-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></span>
+                  <input type="text" id="verify-submit-to" class="cyber-input" value="Retail Banking Clearance Desk" />
+                </div>
+              </div>
+
+              <div class="flow-actions-split">
+                <button type="button" class="btn-cyber-ghost" onclick="returnToStepCheck()">
+                  ← Back to Re-Check
+                </button>
+                <button type="button" class="btn-cyber-primary safe-btn" onclick="startWaitingValidation()">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span>Submit / Verify Transaction</span>
+                </button>
+              </div>
+            </div>
+
+
+            <!-- ══════ FLOW STEP 3: WAITING / PROCESSING SCREEN ══════ -->
+            <div class="flow-card-box hidden" id="flow-step-waiting">
+              <div class="waiting-stage-wrap">
+                
+                <!-- Animated Circular Timer -->
+                <div class="circular-timer-container">
+                  <svg class="timer-svg" width="160" height="160" viewBox="0 0 160 160">
+                    <circle class="timer-track" cx="80" cy="80" r="70" />
+                    <circle class="timer-indicator" cx="80" cy="80" r="70" id="timer-circle-bar" />
+                  </svg>
+                  <div class="timer-center-info">
+                    <span class="timer-time" id="live-timer-clock">00:04</span>
+                    <span class="timer-status">CHECKING</span>
+                  </div>
+                </div>
+
+                <div class="waiting-status-text">
+                  <h3>Please wait, your transaction is being checked</h3>
+                  <p>Broadcasting cryptographic challenge to Banking Core Switch and I4C Anti-Phishing Nodes...</p>
+                </div>
+
+                <div class="waiting-checkpoints">
+                  <div class="checkpoint active" id="cp-1">
+                    <span class="cp-dot"></span>
+                    <span>NPCI Switch Handshake</span>
+                  </div>
+                  <div class="checkpoint" id="cp-2">
+                    <span class="cp-dot"></span>
+                    <span>1930 Cyber Fraud Database Scan</span>
+                  </div>
+                  <div class="checkpoint" id="cp-3">
+                    <span class="cp-dot"></span>
+                    <span>Biometric Device Binding Validation</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+            <!-- ══════ FLOW STEP 4: PAYMENT EXECUTION SCREEN (TASK APPROVED) ══════ -->
+            <div class="flow-card-box hidden" id="flow-step-payment">
+              <div class="payment-approved-stage">
+                
+                <div class="approved-shield-icon">
+                  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                  </svg>
+                </div>
+
+                <div class="approved-header-text">
+                  <span class="approved-tag">NPCI AUTHORIZED • ZERO FRAUD RISK</span>
+                  <h2>Task Approved: Ready to Pay</h2>
+                  <p>Transaction clearance token generated. Press below to initiate instant UPI Intent payment.</p>
+                </div>
+
+                <div class="pay-amount-box">
+                  <span class="currency-symbol">₹</span>
+                  <span class="pay-amt-num" id="pay-final-amount">2,500.00</span>
+                </div>
+
+                <div class="pay-target-vpa">
+                  <span>To: <strong id="pay-final-recipient">Rahul Sharma</strong> (<code id="pay-final-vpa">rahul@okaxis</code>)</span>
+                </div>
+
+                <!-- Prominent Green PAY Button with Rupee -->
+                <button type="button" class="btn-giant-pay" onclick="executeFinalPayment()">
+                  <div class="btn-pay-content">
+                    <span class="rupee-char">₹</span>
+                    <span class="pay-word">PAY</span>
+                  </div>
+                  <span class="pay-glow-ring"></span>
+                </button>
+
+                <div class="post-pay-actions">
+                  <button class="btn-cyber-ghost sm" onclick="returnToStepCheck()">
+                    Initiate Another Check
+                  </button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════
+             MOBILE ACTION BAR (From Wireframe Specification)
+             Bottom bar with input box & [+] quick handoff button
+        ════════════════════════════════════════════════ -->
+        <div class="mobile-action-bar" id="mobile-action-bar">
+          <div class="mobile-bar-inner">
+            <span class="bar-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            </span>
+            <input type="text" class="mobile-bar-input" id="mobile-quick-note" placeholder="Quick UPI / Extortion note scanner..." />
+            <button class="btn-mobile-plus" onclick="triggerMobileQuickScan()" title="Quick Add / Scan">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════
+           VIEW 2: NAVIGATION MENU / ACARDS & ACCOUNTS (/menu)
+      ════════════════════════════════════════════════ -->
+      <section class="content-view hidden" id="view-menu">
+        <div class="panel glassmorphism">
+          <div class="panel-header">
+            <div class="title-with-pill">
+              <h3>Monitored Customer Accounts & Cards</h3>
+              <span class="live-count-chip">8 Active Bindings</span>
+            </div>
+            <div class="filter-toolbar">
+              <select class="cyber-select" id="card-status-filter" onchange="filterCardRegistry(this.value)">
+                <option value="all">All Risk Statuses</option>
+                <option value="safe">Safe / Normal</option>
+                <option value="flagged">High Risk / Flagged</option>
+                <option value="blocked">Blacklisted</option>
+              </select>
+              <button class="btn-cyber-primary sm" onclick="openAddCardModal()">+ Register Card / VPA</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="verix-table">
+              <thead>
+                <tr>
+                  <th>User Name</th>
+                  <th>Phone Number</th>
+                  <th>Account / Card Last 4</th>
+                  <th>Expiry Date</th>
+                  <th>Risk Assessment</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="cards-table-body">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════
+           VIEW 3: USER MESSAGE HUB & INTERCEPTED PHISHING (/user)
+      ════════════════════════════════════════════════ -->
+      <section class="content-view hidden" id="view-user">
+        <div class="user-hub-grid">
+          
+          <!-- User / Threat List -->
+          <div class="panel glassmorphism users-sidebar-panel">
+            <div class="panel-header">
+              <h3>Threat Telemetry Stream</h3>
+              <span class="live-count-chip red">3 Intercepts</span>
+            </div>
+            <div class="user-search-bar">
+              <input type="text" class="cyber-input sm" placeholder="Filter users & alerts..." oninput="filterUserHubList(this.value)" />
+            </div>
+            <div class="user-hub-list" id="user-hub-list">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <!-- Active Message & Phishing Log Inspector -->
+          <div class="panel glassmorphism chat-inspector-panel">
+            <div class="chat-header-bar" id="chat-header-bar">
+              <div class="user-profile-header">
+                <div class="chat-avatar" id="chat-active-avatar">RS</div>
+                <div class="chat-user-meta">
+                  <h4 id="chat-active-name">Rahul Sharma (+91 98452 10982)</h4>
+                  <span class="chat-threat-level text-crimson" id="chat-active-level">🚨 Digital Arrest SMS Threat Intercepted</span>
+                </div>
+              </div>
+              <div class="chat-actions-bar">
+                <button class="btn-cyber-ghost sm" onclick="sendHoneypotReply()">
+                  🤖 Trigger Honeypot Auto-Response
+                </button>
+              </div>
+            </div>
+
+            <!-- Messages stream -->
+            <div class="chat-messages-container" id="chat-messages-container">
+              <!-- Messages -->
+            </div>
+
+            <!-- Admin Message Input -->
+            <div class="chat-input-bar">
+              <input type="text" class="chat-input-field" id="chat-input-field" placeholder="Send official Cyber Cell warning SMS to victim..." onkeydown="handleChatSubmit(event)" />
+              <button class="btn-send-message" onclick="submitChatMessage()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════
+           VIEW 4: I4C SCAM THREAT INTEL FEED
+      ════════════════════════════════════════════════ -->
+      <section class="content-view hidden" id="view-threat-feed">
+        <div class="panel glassmorphism">
+          <div class="panel-header">
+            <div class="title-with-pill">
+              <h3>National Cybercrime Reporting Portal (1930) Live Feed</h3>
+              <span class="live-count-chip red pulse">Live Synced</span>
+            </div>
+            <button class="btn-cyber-primary sm" onclick="refreshThreatIntel()">Sync I4C Threat Intel</button>
+          </div>
+          <div class="threat-intel-grid" id="threat-intel-grid">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ════════════════════════════════════════════════
+           VIEW 5: VPA BLACKLIST DATABASE
+      ════════════════════════════════════════════════ -->
+      <section class="content-view hidden" id="view-blacklist">
+        <div class="panel glassmorphism">
+          <div class="panel-header">
+            <div class="title-with-pill">
+              <h3>Blacklisted Mule Accounts & Honeypot VPAs</h3>
+              <span class="live-count-chip" id="blacklist-count-chip">128 Blacklisted</span>
+            </div>
+            <button class="btn-cyber-primary sm" onclick="openAddBlacklistModal()">+ Add Rogue VPA</button>
+          </div>
+          <div class="table-responsive">
+            <table class="verix-table">
+              <thead>
+                <tr>
+                  <th>Flagged VPA Handle</th>
+                  <th>Associated Scammer Name</th>
+                  <th>Crime Category</th>
+                  <th>Reported Date</th>
+                  <th>1930 FIR Ref</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="blacklist-table-body">
+                <!-- Blacklist -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       4. REJECTED FLOW: WARNING MODAL (HIGH RISK FLAGGED)
+  ══════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop hidden" id="warning-modal-backdrop">
+    <div class="modal-cyber warning-box glassmorphism">
+      
+      <div class="warning-flasher">
+        <div class="warning-icon-outer">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="warning-title-block">
+        <span class="threat-alert-pill">CRITICAL RISK DETECTED</span>
+        <h2>WARNING</h2>
+        <p class="warning-lead">This is <strong>not a secure payment</strong> or a verified user.</p>
+      </div>
+
+      <!-- Specific Advisory Breakdown -->
+      <div class="warning-advisories-card">
+        <div class="advisory-row">
+          <span class="advisory-bullet">🚨</span>
+          <div>
+            <strong>Digital Arrest Extortion Indicator:</strong>
+            <p id="warn-reason-text">VPA matches known fake police impersonation syndicate. Active call telemetry detected during payment.</p>
+          </div>
+        </div>
+        <div class="advisory-row">
+          <span class="advisory-bullet">🛡️</span>
+          <div>
+            <strong>I4C Scam Database Match:</strong>
+            <p>14 previous complaints registered under section 420 IPC on National Cyber Crime Portal (1930).</p>
+          </div>
+        </div>
+      </div>
+
+      <p class="warning-choice-prompt">What would you like to do: continue or block?</p>
+
+      <!-- Prominent Decision Branching Buttons -->
+      <div class="warning-action-buttons">
+        
+        <!-- BLOCK BUTTON -->
+        <button type="button" class="btn-branch-block" onclick="executeBlockAction()">
+          <div class="btn-icon-circle red">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </div>
+          <div class="btn-text-block">
+            <span class="action-heading">BLOCK</span>
+            <span class="action-sub">Terminate Transfer & Alert 1930</span>
+          </div>
+        </button>
+
+        <!-- CONTINUE (OVERRIDE) BUTTON -->
+        <button type="button" class="btn-branch-continue" onclick="promptOverrideConfirmation()">
+          <div class="btn-icon-circle green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="btn-text-block">
+            <span class="action-heading">CONTINUE</span>
+            <span class="action-sub">User Override / Biometric OTP</span>
+          </div>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       5. MODAL: OVERRIDE OTP / BIOMETRIC CONFIRMATION
+  ══════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop hidden" id="override-modal-backdrop">
+    <div class="modal-cyber glassmorphism">
+      <div class="modal-header">
+        <h3>Manual Security Override Authorization</h3>
+        <button class="btn-close-modal" onclick="closeModal('override-modal-backdrop')">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="override-warning-text">
+          ⚠️ You are approving a high-risk transfer against AI Sentinel recommendations. The officer token will be attached to the audit log.
+        </p>
+        <div class="form-group mt-12">
+          <label class="form-label">Supervisory Officer OTP / Biometric Token</label>
+          <input type="password" id="override-otp-input" class="cyber-input mono" placeholder="Enter 6-digit Override Code (e.g. 998811)" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Justification / Remark</label>
+          <input type="text" id="override-reason-input" class="cyber-input" placeholder="e.g. Customer verified identity in branch" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cyber-ghost" onclick="closeModal('override-modal-backdrop')">Cancel</button>
+        <button class="btn-cyber-primary" onclick="confirmOverrideAPI()">Authorize Override</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════
+       6. MODAL: REGISTER CARD / ACCOUNT
+  ══════════════════════════════════════════════════════ -->
+  <div class="modal-backdrop hidden" id="add-card-modal-backdrop">
+    <div class="modal-cyber glassmorphism">
+      <div class="modal-header">
+        <h3>Register Monitored Account / Card</h3>
+        <button class="btn-close-modal" onclick="closeModal('add-card-modal-backdrop')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Customer Name</label>
+          <input type="text" id="new-card-name" class="cyber-input" placeholder="e.g. Priya Mehta" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Linked Phone Number</label>
+          <input type="text" id="new-card-phone" class="cyber-input mono" placeholder="+91 98450 XXXXX" />
+        </div>
+        <div class="input-grid-2">
+          <div class="form-group">
+            <label class="form-label">Card / Account Last 4</label>
+            <input type="text" id="new-card-last4" class="cyber-input mono" placeholder="8834" maxlength="4" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Expiry Date (MM/YY)</label>
+            <input type="text" id="new-card-expiry" class="cyber-input mono" placeholder="08/28" maxlength="5" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cyber-ghost" onclick="closeModal('add-card-modal-backdrop')">Cancel</button>
+        <button class="btn-cyber-primary" onclick="submitNewCard()">Save Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Main Application Logic Script -->
+  <script src="app.js"></script>
+</body>
+</html>
