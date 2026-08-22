@@ -1198,6 +1198,13 @@ function handleGlobalSearch(e) {
 ══════════════════════════════════════════════════════ */
 function showToast(msg, type = 'success') {
   const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  // Limit to max 3 toasts at any time to prevent toast stacking/spam
+  while (container.children.length >= 3) {
+    container.removeChild(container.firstChild);
+  }
+
   const toast = document.createElement('div');
   toast.className = `toast-cyber ${type}`;
 
@@ -1210,7 +1217,7 @@ function showToast(msg, type = 'success') {
     toast.style.transform = 'translateX(50px)';
     toast.style.transition = 'all 0.3s ease';
     setTimeout(() => toast.remove(), 300);
-  }, 4000);
+  }, 3500);
 }
 
 function esc(str) {
