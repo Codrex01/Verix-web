@@ -24,8 +24,9 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
-// Active SSE Clients for Real-Time Streaming
+// Active SSE Clients & Recent Intents Buffer
 let sseClients = [];
+let recentIntents = [];
 
 const server = http.createServer((req, res) => {
   // CORS & Security Headers
@@ -51,7 +52,8 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
+      'Connection': 'keep-alive',
+      'Access-Control-Allow-Origin': '*'
     });
     res.write('data: {"type":"CONNECTED","message":"Verix Real-Time Stream Connected"}\n\n');
     sseClients.push(res);
@@ -59,6 +61,17 @@ const server = http.createServer((req, res) => {
     req.on('close', () => {
       sseClients = sseClients.filter(client => client !== res);
     });
+    return;
+  }
+
+  // 📋 Fetch Latest Recent Intents (Polling Fallback for file:// or mobile)
+  if (req.url === '/api/v1/intent/latest' || req.url === '/api/intent/latest') {
+    res.writeHead(200, {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'no-store'
+    });
+    res.end(JSON.stringify({ success: true, count: recentIntents.length, intents: recentIntents }));
     return;
   }
 
@@ -80,13 +93,17 @@ const server = http.createServer((req, res) => {
           timestamp: new Date().toISOString()
         };
 
+        // Save to buffer (keep latest 20)
+        recentIntents.unshift(intentData);
+        if (recentIntents.length > 20) recentIntents.pop();
+
         // Broadcast to all connected frontend browser dashboards
         const eventData = `data: ${JSON.stringify({ type: 'NEW_INTENT', data: intentData })}\n\n`;
         sseClients.forEach(client => {
           try { client.write(eventData); } catch (e) {}
         });
 
-        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         res.end(JSON.stringify({
           success: true,
           message: 'Intent pushed live to dashboard!',
@@ -94,7 +111,7 @@ const server = http.createServer((req, res) => {
           data: intentData
         }));
       } catch (err) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
         res.end(JSON.stringify({ success: false, error: 'Invalid JSON payload' }));
       }
     });

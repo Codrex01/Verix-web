@@ -328,36 +328,61 @@ function initDashboard() {
 }
 
 let sseConnection = null;
+let processedIntentIds = new Set();
+let intentPollingTimer = null;
+
+const WEB_BASE_URL = window.location.protocol.startsWith('http') 
+  ? window.location.origin 
+  : 'https://verix-web.onrender.com';
 
 /**
- * 📡 Connect to Real-Time SSE Stream for Instant CURL / External Intents
+ * 📡 Connect to Real-Time SSE Stream & Polling Fallback for Instant CURL / External Intents
  */
 function initRealtimeSseStream() {
-  if (sseConnection) return;
-  try {
-    const isHttp = window.location.protocol.startsWith('http');
-    const sseUrl = isHttp ? `${window.location.origin}/api/v1/intent/stream` : 'http://localhost:10000/api/v1/intent/stream';
-    
-    sseConnection = new EventSource(sseUrl);
-    
-    sseConnection.onopen = () => {
-      console.log('📡 [Verix SSE] Live stream connected for real-time intents');
-    };
+  // 1. Establish SSE Connection
+  if (!sseConnection) {
+    try {
+      const sseUrl = `${WEB_BASE_URL}/api/v1/intent/stream`;
+      sseConnection = new EventSource(sseUrl);
+      
+      sseConnection.onopen = () => {
+        console.log('📡 [Verix SSE] Real-time stream connected to', sseUrl);
+      };
 
-    sseConnection.onmessage = (event) => {
+      sseConnection.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === 'NEW_INTENT' && msg.data) {
+            handleIncomingRealtimeIntent(msg.data);
+          }
+        } catch (e) {}
+      };
+
+      sseConnection.onerror = () => {
+        // SSE reconnects automatically
+      };
+    } catch (e) {
+      console.warn('SSE stream notice:', e);
+    }
+  }
+
+  // 2. Continuous Polling Fallback (ensures 100% receipt even across firewalls / file:// mode)
+  if (!intentPollingTimer) {
+    intentPollingTimer = setInterval(async () => {
       try {
-        const msg = JSON.parse(event.data);
-        if (msg.type === 'NEW_INTENT' && msg.data) {
-          handleIncomingRealtimeIntent(msg.data);
+        const res = await fetch(`${WEB_BASE_URL}/api/v1/intent/latest`, { cache: 'no-store' });
+        if (res.ok) {
+          const result = await res.json();
+          if (result.intents && Array.isArray(result.intents)) {
+            result.intents.forEach(intent => {
+              if (intent && intent.id && !processedIntentIds.has(intent.id)) {
+                handleIncomingRealtimeIntent(intent);
+              }
+            });
+          }
         }
       } catch (e) {}
-    };
-
-    sseConnection.onerror = () => {
-      // Reconnects automatically
-    };
-  } catch (e) {
-    console.warn('SSE stream initialization skipped:', e);
+    }, 2000);
   }
 }
 
@@ -365,7 +390,12 @@ function initRealtimeSseStream() {
  * ⚡ Handles Inbound Intent triggered by cURL or external device
  */
 function handleIncomingRealtimeIntent(intent) {
-  // 1. Add to incoming queue
+  if (!intent || !intent.id) return;
+  if (processedIntentIds.has(intent.id)) return;
+  processedIntentIds.add(intent.id);
+
+  // 1. Add to incoming queue with Live flag
+  intent.type = 'threat';
   AppState.incomingQueue.unshift(intent);
   loadSampleQueue();
 
