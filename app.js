@@ -10,10 +10,11 @@ const API_BASE_URL = 'https://fruadsih.onrender.com';
 
 /* ─── Application State ─── */
 const AppState = {
+  isLiveAdminMode: false, // false = Judge Demo Mode (Curated Static), true = Real Live Backend
   session: {
     authenticated: false,
-    role: 'admin',
-    user: 'admin@verix.gov.in',
+    role: 'demo', // 'demo' | 'admin'
+    user: 'judge@verix.gov.in',
     token: null
   },
   currentView: 'pre-check',
@@ -24,7 +25,16 @@ const AppState = {
   waitingTimerInterval: null,
   waitingTimeRemaining: 4,
   
-  // Cards & Accounts Registry
+  // Real Live Backend Data Store
+  liveData: {
+    safeCount: 0,
+    threatCount: 0,
+    cards: [],
+    queue: [],
+    blacklist: []
+  },
+
+  // Cards & Accounts Registry (Curated Demo Data for Judges)
   cards: [
     { id: 'c1', name: 'Rahul Sharma', phone: '+91 98452 10982', last4: '4521', expiry: '09/26', status: 'flagged', riskScore: 88 },
     { id: 'c2', name: 'Priya Mehta', phone: '+91 98210 44321', last4: '8834', expiry: '03/25', status: 'safe', riskScore: 12 },
@@ -36,7 +46,7 @@ const AppState = {
     { id: 'c8', name: 'Kavya Reddy', phone: '+91 91234 56789', last4: '5588', expiry: '02/24', status: 'blocked', riskScore: 100 }
   ],
 
-  // Incoming Stream Queue
+  // Incoming Stream Queue (Curated Demo Data for Judges)
   incomingQueue: [
     {
       id: 'q1',
@@ -137,10 +147,10 @@ const AppState = {
 
 
 /* ══════════════════════════════════════════════════════
-   1. AUTHENTICATION CONTROLLER
+   1. AUTHENTICATION & DUAL-MODE CONTROLLER
 ══════════════════════════════════════════════════════ */
 function handleLogin(e) {
-  e.preventDefault();
+  if (e) e.preventDefault();
   const email = document.getElementById('login-email').value.trim();
   const pass  = document.getElementById('login-pass').value;
   const btn   = document.getElementById('btn-login');
@@ -157,23 +167,56 @@ function handleLogin(e) {
       AppState.session.user = email;
       AppState.session.token = 'verix_' + Math.random().toString(36).substring(2);
 
-      document.getElementById('screen-login').classList.remove('active');
-      document.getElementById('screen-login').classList.add('hidden');
-      document.getElementById('screen-dashboard').classList.remove('hidden');
-      document.getElementById('screen-dashboard').classList.add('active');
+      // Determine Mode
+      AppState.isLiveAdminMode = (AppState.session.role === 'admin' || email.includes('admin'));
 
-      document.getElementById('officer-name').textContent = AppState.session.role === 'admin' ? 'Super Admin' : 'Review Officer';
-      document.getElementById('officer-avatar').textContent = email.substring(0, 2).toUpperCase();
-
-      initDashboard();
-      showToast('Authenticated successfully with Verix Sentinel Cloud', 'success');
+      launchDashboard();
     } else {
       showToast('Invalid security token or password', 'error');
       btn.disabled = false;
       txt.classList.remove('hidden');
       spn.classList.add('hidden');
     }
-  }, 900);
+  }, 700);
+}
+
+/**
+ * ⚡ 1-Click Launchers for Demo / Judges & Live Admin
+ */
+function quickLogin(mode) {
+  AppState.session.role = mode;
+  AppState.isLiveAdminMode = (mode === 'admin');
+
+  if (mode === 'admin') {
+    document.getElementById('login-email').value = 'admin@verix.gov.in';
+    document.getElementById('login-pass').value = 'cyber123';
+    selectRole('admin');
+  } else {
+    document.getElementById('login-email').value = 'judge@verix.gov.in';
+    document.getElementById('login-pass').value = 'demo123';
+    selectRole('demo');
+  }
+
+  handleLogin(null);
+}
+
+function launchDashboard() {
+  document.getElementById('screen-login').classList.remove('active');
+  document.getElementById('screen-login').classList.add('hidden');
+  document.getElementById('screen-dashboard').classList.remove('hidden');
+  document.getElementById('screen-dashboard').classList.add('active');
+
+  const isLive = AppState.isLiveAdminMode;
+  document.getElementById('officer-name').textContent = isLive ? 'Super Admin (Live)' : 'Judge Presentation Demo';
+  document.getElementById('officer-avatar').textContent = isLive ? 'AD' : 'JD';
+
+  updateModeUI();
+  initDashboard();
+
+  showToast(
+    isLive ? '🔴 Live Real-Time Mode Enabled (Connected to Render API)' : '🎭 Judge Presentation Mode Enabled (Curated Intel)',
+    isLive ? 'warn' : 'success'
+  );
 }
 
 function handleLogout() {
@@ -192,8 +235,9 @@ function handleLogout() {
 
 function selectRole(role) {
   AppState.session.role = role;
+  AppState.isLiveAdminMode = (role === 'admin');
   document.getElementById('chip-admin').classList.toggle('active', role === 'admin');
-  document.getElementById('chip-reviewer').classList.toggle('active', role === 'reviewer');
+  document.getElementById('chip-demo').classList.toggle('active', role === 'demo');
 }
 
 function togglePassVisibility() {
@@ -201,11 +245,59 @@ function togglePassVisibility() {
   inp.type = inp.type === 'password' ? 'text' : 'password';
 }
 
+/**
+ * 🔄 Toggle between Judge Demo Mode and Live Admin Mode on the fly from Topbar
+ */
+function toggleActiveDashboardMode() {
+  AppState.isLiveAdminMode = !AppState.isLiveAdminMode;
+  AppState.session.role = AppState.isLiveAdminMode ? 'admin' : 'demo';
+  
+  updateModeUI();
+  initDashboard();
+
+  if (AppState.isLiveAdminMode) {
+    showToast('🔴 Switched to Live Real-Time Admin Mode (Real Render Backend)', 'warn');
+  } else {
+    showToast('🎭 Switched to Judge Pitch Demo Mode (Curated Static Intel)', 'success');
+  }
+}
+
+function updateModeUI() {
+  const isLive = AppState.isLiveAdminMode;
+  const badge = document.getElementById('topbar-mode-badge');
+  const icon  = document.getElementById('topbar-mode-icon');
+  const title = document.getElementById('topbar-mode-title');
+  const sub   = document.getElementById('topbar-mode-sub');
+
+  if (isLive) {
+    badge.className = 'mode-pill-badge live-mode';
+    icon.textContent = '🔴';
+    title.textContent = 'LIVE ADMIN MODE (REAL DATA)';
+    sub.textContent = 'Click to switch to Judge Demo';
+  } else {
+    badge.className = 'mode-pill-badge demo-mode';
+    icon.textContent = '🎭';
+    title.textContent = 'JUDGE PITCH DEMO MODE';
+    sub.textContent = 'Click to switch to Live Backend';
+  }
+}
 
 /* ══════════════════════════════════════════════════════
    2. DASHBOARD & VIEW CONTROLLER
 ══════════════════════════════════════════════════════ */
 function initDashboard() {
+  const isLive = AppState.isLiveAdminMode;
+
+  if (isLive) {
+    document.getElementById('metric-safe').textContent = 'Live Sync';
+    document.getElementById('metric-blocked').textContent = 'Live Sync';
+    document.getElementById('metric-arrests').textContent = 'Live Monitor';
+  } else {
+    document.getElementById('metric-safe').textContent = AppState.safeTxnCount.toLocaleString();
+    document.getElementById('metric-blocked').textContent = AppState.activeThreatCount;
+    document.getElementById('metric-arrests').textContent = '12';
+  }
+
   loadSampleQueue();
   renderCardsTable();
   renderUserHubList();

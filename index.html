@@ -70,13 +70,13 @@
           </div>
 
           <div class="role-selector">
-            <label class="role-chip active" id="chip-admin" onclick="selectRole('admin')">
-              <input type="radio" name="role" value="admin" checked /> 
-              <span>Super Admin</span>
+            <label class="role-chip active" id="chip-demo" onclick="selectRole('demo')">
+              <input type="radio" name="role" value="demo" checked /> 
+              <span>🎭 Judge Demo Mode</span>
             </label>
-            <label class="role-chip" id="chip-reviewer" onclick="selectRole('reviewer')">
-              <input type="radio" name="role" value="reviewer" /> 
-              <span>Fraud Reviewer</span>
+            <label class="role-chip" id="chip-admin" onclick="selectRole('admin')">
+              <input type="radio" name="role" value="admin" /> 
+              <span>🔴 Live Admin (Real API)</span>
             </label>
           </div>
 
@@ -84,14 +84,24 @@
             <span class="btn-text">Authenticate & Access Console</span>
             <span class="btn-spinner hidden"></span>
           </button>
+
+          <!-- Quick 1-Click Launchers for Judge Presentation -->
+          <div class="quick-demo-launchers">
+            <button type="button" class="btn-quick-launch demo" onclick="quickLogin('demo')">
+              ⚡ 1-Click Judge Pitch Demo (Curated Intel)
+            </button>
+            <button type="button" class="btn-quick-launch live" onclick="quickLogin('admin')">
+              📡 1-Click Live Admin (Real Backend Data)
+            </button>
+          </div>
         </form>
 
         <div class="login-footer-info">
           <div class="api-status-badge">
-            <span class="pulse-dot green"></span>
-            <span>API: <code>fruadsih.onrender.com</code> (Online)</span>
+            <span class="pulse-dot green" id="login-api-dot"></span>
+            <span id="login-api-status">Backend: <code>fruadsih.onrender.com</code></span>
           </div>
-          <p class="quick-credentials">Demo: <code>admin@verix.gov.in</code> / <code>cyber123</code></p>
+          <p class="quick-credentials">Judge Demo: <code>judge@verix.gov.in</code> | Real Admin: <code>admin@verix.gov.in</code></p>
         </div>
       </div>
     </div>
@@ -207,8 +217,17 @@
         </div>
 
         <div class="topbar-right">
+          <!-- Active Mode Switcher Pill (Judge Demo vs Real Live Admin) -->
+          <div class="mode-pill-badge" id="topbar-mode-badge" onclick="toggleActiveDashboardMode()">
+            <span class="mode-icon" id="topbar-mode-icon">🎭</span>
+            <div class="mode-text-group">
+              <span class="mode-title" id="topbar-mode-title">JUDGE DEMO MODE</span>
+              <span class="mode-action-sub" id="topbar-mode-sub">Click to switch to Live Backend</span>
+            </div>
+          </div>
+
           <!-- Live API status indicator -->
-          <div class="api-pill-status">
+          <div class="api-pill-status" id="topbar-api-pill">
             <span class="pulse-dot green" id="topbar-api-dot"></span>
             <span class="text" id="topbar-api-label">fruadsih.onrender.com (Live)</span>
           </div>
