@@ -1,0 +1,17 @@
+{
+  "name": "verix-web",
+  "version": "2.4.0",
+  "description": "Verix AI Cyber & UPI Fraud Detection System and Bank Admin Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "cyber-security",
+    "fraud-detection",
+    "upi",
+    "admin-dashboard"
+  ],
+  "author": "Codrex01",
+  "license": "MIT"
+}
