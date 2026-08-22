@@ -46,6 +46,8 @@ const server = http.createServer((req, res) => {
   let reqPath = req.url.split('?')[0];
   if (reqPath === '/' || reqPath === '') {
     reqPath = '/index.html';
+  } else if (reqPath === '/swagger' || reqPath === '/swagger/') {
+    reqPath = '/swagger/index.html';
   }
 
   const safePath = path.normalize(reqPath).replace(/^(\.\.[\/\\])+/, '');
@@ -53,8 +55,14 @@ const server = http.createServer((req, res) => {
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
-      // Fallback to index.html for client-side routing
-      filePath = path.join(PUBLIC_DIR, 'index.html');
+      // Check if it's a directory containing index.html
+      const subIndex = path.join(filePath, 'index.html');
+      if (fs.existsSync(subIndex)) {
+        filePath = subIndex;
+      } else {
+        // Fallback to root index.html for client-side routing
+        filePath = path.join(PUBLIC_DIR, 'index.html');
+      }
     }
 
     const ext = path.extname(filePath).toLowerCase();

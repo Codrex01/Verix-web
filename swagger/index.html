@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verix API Specification & Swagger UI</title>
+  <meta name="description" content="Official Swagger OpenAPI 3.0 Interactive Documentation for Verix Real-Time AI Cyber & UPI Fraud Detection System">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Swagger UI CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui.css">
+
+  <style>
+    :root {
+      --bg-deep: #040D1A;
+      --bg-surface: #0B132B;
+      --bg-elevated: #141E3C;
+      --emerald: #10B981;
+      --crimson: #EF4444;
+      --amber: #F59E0B;
+      --cyber-blue: #38BDF8;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg-deep);
+      color: #F8FAFC;
+      font-family: var(--font-sans);
+    }
+
+    /* Custom Header Bar */
+    .swagger-custom-header {
+      background: rgba(11, 19, 43, 0.95);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 16px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(16px);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .shield-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald);
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      background: linear-gradient(135deg, #FFF, var(--emerald));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-sub {
+      font-size: 0.72rem;
+      color: var(--emerald);
+      font-family: var(--font-mono);
+    }
+
+    .btn-back-dashboard {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-back-dashboard:hover {
+      background: rgba(16, 185, 129, 0.25);
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+      transform: translateY(-1px);
+    }
+
+    /* Swagger Dark Mode Overrides */
+    .swagger-ui {
+      background-color: var(--bg-deep);
+      color: #E2E8F0;
+      padding-bottom: 60px;
+    }
+
+    .swagger-ui .info {
+      margin: 30px 0;
+      padding: 24px;
+      background: rgba(15, 25, 52, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+    }
+
+    .swagger-ui .info .title {
+      color: #FFFFFF;
+      font-family: var(--font-sans);
+      font-weight: 800;
+    }
+
+    .swagger-ui .info p, .swagger-ui .info li, .swagger-ui .info table {
+      color: #94A3B8;
+      font-family: var(--font-sans);
+    }
+
+    .swagger-ui .scheme-container {
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+      padding: 16px 24px;
+      border-radius: 12px;
+      margin: 20px 0;
+    }
+
+    .swagger-ui select {
+      background-color: var(--bg-elevated) !important;
+      color: #F8FAFC !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 6px !important;
+      font-family: var(--font-sans) !important;
+    }
+
+    /* Operations / Endpoints */
+    .swagger-ui .opblock {
+      background: rgba(15, 25, 52, 0.6) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 12px !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3) !important;
+      margin-bottom: 16px !important;
+    }
+
+    .swagger-ui .opblock .opblock-summary {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 12px 18px;
+    }
+
+    .swagger-ui .opblock .opblock-summary-path {
+      color: #F8FAFC !important;
+      font-family: var(--font-mono) !important;
+      font-weight: 700 !important;
+    }
+
+    .swagger-ui .opblock .opblock-summary-description {
+      color: #94A3B8 !important;
+      font-family: var(--font-sans) !important;
+    }
+
+    .swagger-ui .opblock-body {
+      background: rgba(8, 16, 36, 0.8) !important;
+      padding: 20px !important;
+    }
+
+    .swagger-ui .opblock-tag {
+      color: #FFFFFF !important;
+      font-family: var(--font-sans) !important;
+      font-size: 1.15rem !important;
+      font-weight: 800 !important;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+      padding: 16px 0 8px !important;
+      margin-top: 24px !important;
+    }
+
+    .swagger-ui .btn {
+      border-radius: 6px !important;
+      font-family: var(--font-sans) !important;
+      font-weight: 700 !important;
+    }
+
+    .swagger-ui .btn.execute {
+      background-color: var(--emerald) !important;
+      color: #040D1A !important;
+      border-color: var(--emerald) !important;
+      font-weight: 800 !important;
+    }
+
+    .swagger-ui .btn.cancel {
+      background-color: rgba(239, 68, 68, 0.2) !important;
+      color: var(--crimson) !important;
+      border-color: var(--crimson) !important;
+    }
+
+    .swagger-ui textarea, .swagger-ui input[type=text] {
+      background: rgba(4, 13, 26, 0.9) !important;
+      color: #F8FAFC !important;
+      border: 1px solid rgba(255, 255, 255, 0.15) !important;
+      border-radius: 6px !important;
+      font-family: var(--font-mono) !important;
+    }
+
+    .swagger-ui .responses-inner h4, .swagger-ui .responses-inner h5 {
+      color: #F8FAFC !important;
+    }
+
+    .swagger-ui .response-col_status {
+      color: var(--emerald) !important;
+      font-family: var(--font-mono) !important;
+      font-weight: 700 !important;
+    }
+
+    .swagger-ui .highlight-code, .swagger-ui pre {
+      background: #020617 !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      border-radius: 8px !important;
+    }
+
+    .swagger-ui code {
+      color: var(--cyber-blue) !important;
+      font-family: var(--font-mono) !important;
+    }
+
+    .swagger-ui .model-box {
+      background: rgba(15, 25, 52, 0.5) !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom Navigation Topbar -->
+  <header class="swagger-custom-header">
+    <div class="brand-group">
+      <div class="shield-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">VERIX API SPECIFICATION</div>
+        <div class="brand-sub">OpenAPI 3.0 • Real-Time AI Fraud Sentinel</div>
+      </div>
+    </div>
+    
+    <a href="../index.html" class="btn-back-dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      <span>Return to Dashboard</span>
+    </a>
+  </header>
+
+  <!-- Swagger UI Target Mount Point -->
+  <div id="swagger-ui"></div>
+
+  <!-- Swagger UI Bundle JS -->
+  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5.11.0/swagger-ui-standalone-preset.js"></script>
+
+  <script>
+    window.onload = function() {
+      // Embedded OpenAPI 3.0 Specification
+      const spec = {
+        openapi: "3.0.3",
+        info: {
+          title: "Verix Real-Time AI Cyber & UPI Fraud Detection API",
+          version: "2.4.0",
+          description: "RESTful API specification for Verix AI Fraud Detection, NPCI UPI risk checking, Digital Arrest extortion interception, and National Cybercrime 1930 reporting.\n\n**Backend Server URL**: `https://fruadsih.onrender.com`",
+          contact: {
+            name: "Verix Security Operations Center",
+            url: "https://github.com/Codrex01/Verix-web"
+          }
+        },
+        servers: [
+          {
+            url: "https://fruadsih.onrender.com",
+            description: "Production Render AI Backend"
+          },
+          {
+            url: "http://localhost:10000",
+            description: "Local Development Server"
+          }
+        ],
+        tags: [
+          {
+            name: "Pre-Payment Risk Check",
+            description: "Deep UPI VPA heuristic risk scoring & Digital Arrest call telemetry"
+          },
+          {
+            name: "Security Override",
+            description: "Supervisor token authorization for flagged high-risk transfers"
+          },
+          {
+            name: "Threat Intel & Blacklist",
+            description: "Incident reporting to 1930 National Cybercrime Portal and honeypot VPA queries"
+          },
+          {
+            name: "System & Health",
+            description: "Keep-alive ping and service availability monitoring"
+          }
+        ],
+        paths: {
+          "/api/v1/health": {
+            get: {
+              tags: ["System & Health"],
+              summary: "Health Check & 10-Min Keep-Alive Ping",
+              description: "Returns instant service health status. Used by frontend 10-minute auto-ping to prevent Render free-tier instance spinning down.",
+              operationId: "getHealth",
+              responses: {
+                "200": {
+                  description: "Service is healthy and online",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          status: { type: "string", example: "healthy" },
+                          service: { type: "string", example: "verix-fraud-detection-api" },
+                          timestamp: { type: "string", example: "2026-08-23T03:45:00.000Z" },
+                          uptime: { type: "number", example: 14820 }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/v1/risk/check": {
+            post: {
+              tags: ["Pre-Payment Risk Check"],
+              summary: "Assess UPI Transaction Risk Score",
+              description: "Analyzes recipient VPA, transfer amount, threat context message, and active phone call telemetry to intercept Digital Arrests, phishing APKs, and mule accounts.",
+              operationId: "checkUpiRisk",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      required: ["vpa", "amount"],
+                      properties: {
+                        vpa: {
+                          type: "string",
+                          description: "Recipient UPI VPA handle",
+                          example: "cbi.verification@paytm"
+                        },
+                        amount: {
+                          type: "number",
+                          description: "Transaction amount in INR (₹)",
+                          example: 45000
+                        },
+                        note: {
+                          type: "string",
+                          description: "Transaction remark or extortion note received by victim",
+                          example: "Digital arrest warrant #CR-9082. Deposit bail security immediately."
+                        },
+                        recipientName: {
+                          type: "string",
+                          description: "Payee Name provided by user",
+                          example: "CBI Cyber Crime Special Desk"
+                        },
+                        deviceContext: {
+                          type: "object",
+                          properties: {
+                            activeCallDetected: {
+                              type: "boolean",
+                              description: "Whether victim is on an active phone call during payment",
+                              example: true
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "200": {
+                  description: "Risk assessment completed successfully",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          success: { type: "boolean", example: true },
+                          riskScore: { type: "integer", example: 96, description: "Risk Score (0 = Safe, 100 = Severe Fraud)" },
+                          isApproved: { type: "boolean", example: false, description: "True = Low Risk Flow, False = Rejected Warning Modal" },
+                          action: { type: "string", example: "REJECT", enum: ["APPROVE", "REJECT"] },
+                          triggers: {
+                            type: "array",
+                            items: { type: "string" },
+                            example: [
+                              "Digital Arrest Extortion Indicator",
+                              "Active Phone Call Detected during Payment",
+                              "Impersonation of Law Enforcement Agency"
+                            ]
+                          },
+                          recommendedAction: { type: "string", example: "BLOCK_TRANSFER", enum: ["PROCEED_PAYMENT", "BLOCK_TRANSFER"] }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/v1/risk/confirm-override": {
+            post: {
+              tags: ["Security Override"],
+              summary: "Authorize Supervisor Security Override",
+              description: "Allows branch manager or senior officer to override a high-risk payment block with supervisor biometric/OTP token.",
+              operationId: "confirmSecurityOverride",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      required: ["vpa", "amount", "officerToken"],
+                      properties: {
+                        vpa: { type: "string", example: "cbi.verification@paytm" },
+                        amount: { type: "number", example: 45000 },
+                        officerToken: { type: "string", example: "998811", description: "6-digit supervisor token" },
+                        justification: { type: "string", example: "Customer verified in-branch with physical ID" }
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "200": {
+                  description: "Override authorized and audit log updated",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          success: { type: "boolean", example: true },
+                          status: { type: "string", example: "OVERRIDE_RECORDED" },
+                          auditId: { type: "string", example: "OVR-2026-9901" },
+                          timestamp: { type: "string", example: "2026-08-23T03:45:00.000Z" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/v1/threat-intel/report": {
+            post: {
+              tags: ["Threat Intel & Blacklist"],
+              summary: "Report Rogue VPA & Extortion to 1930 Cybercrime Portal",
+              description: "Dispatches blocked threat telemetry, scammer VPA, and extortion notes directly to the I4C / 1930 National Scam Registry.",
+              operationId: "reportThreatIntel",
+              requestBody: {
+                required: true,
+                content: {
+                  "application/json": {
+                    schema: {
+                      type: "object",
+                      required: ["vpa", "threatType"],
+                      properties: {
+                        vpa: { type: "string", example: "cbi.verification@paytm" },
+                        amount: { type: "number", example: 45000 },
+                        threatType: { type: "string", example: "Digital Arrest Extortion" },
+                        evidenceNote: { type: "string", example: "Arrest warrant threat received via video call" },
+                        reportedBy: { type: "string", example: "admin@verix.gov.in" }
+                      }
+                    }
+                  }
+                }
+              },
+              responses: {
+                "200": {
+                  description: "Threat logged and added to 1930 Blacklist",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "object",
+                        properties: {
+                          success: { type: "boolean", example: true },
+                          reportId: { type: "string", example: "I4C-REP-2026-8812" },
+                          blacklisted: { type: "boolean", example: true },
+                          message: { type: "string", example: "Incident reported to 1930 Cyber Fraud Database" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "/api/v1/blacklist": {
+            get: {
+              tags: ["Threat Intel & Blacklist"],
+              summary: "Fetch National 1930 Blacklisted VPAs",
+              description: "Retrieves the active list of blacklisted mule accounts, honeypot VPAs, and reported impersonators.",
+              operationId: "getBlacklist",
+              responses: {
+                "200": {
+                  description: "List of blacklisted VPAs",
+                  content: {
+                    "application/json": {
+                      schema: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            vpa: { type: "string", example: "cbi.verification@paytm" },
+                            name: { type: "string", example: "Fake CBI Clearance Desk" },
+                            category: { type: "string", example: "Digital Arrest" },
+                            date: { type: "string", example: "23 Aug 2026" },
+                            fir: { type: "string", example: "FIR-1930/2026/MUM/8821" }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      };
+
+      // Initialize Swagger UI
+      const ui = SwaggerUIBundle({
+        spec: spec,
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout",
+        defaultModelsExpandDepth: -1,
+        docExpansion: "list"
+      });
+
+      window.ui = ui;
+    };
+  </script>
+</body>
+</html>
