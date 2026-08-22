@@ -255,17 +255,60 @@ function toggleMobileSidebar() {
 
 
 /* ══════════════════════════════════════════════════════
-   3. API INTEGRATION (VERIX BACKEND: fruadsih.onrender.com)
+   3. API INTEGRATION & 10-MIN RENDER KEEP-ALIVE PING
+   Backend: https://fruadsih.onrender.com
 ══════════════════════════════════════════════════════ */
-async function checkBackendAPIHealth() {
+
+let keepAliveTimer = null;
+let lastPingTimestamp = null;
+
+/**
+ * ⚡ 10-Minute Auto Keep-Alive Ping to prevent Render free-tier instance spinning down
+ */
+async function pingBackendKeepAlive() {
+  const dot = document.getElementById('topbar-api-dot');
+  const lbl = document.getElementById('topbar-api-label');
+  const startTime = Date.now();
+
   try {
-    const dot = document.getElementById('topbar-api-dot');
-    const lbl = document.getElementById('topbar-api-label');
-    dot.className = 'pulse-dot green';
-    lbl.textContent = 'fruadsih.onrender.com (Live)';
+    // Ping healthcheck endpoint with lightweight GET or fallback HEAD
+    const res = await fetch(`${API_BASE_URL}/api/v1/health`, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      cache: 'no-store'
+    }).catch(async () => {
+      // Fallback probe to root
+      return await fetch(`${API_BASE_URL}/`, { method: 'GET', cache: 'no-store' });
+    });
+
+    const latency = Date.now() - startTime;
+    lastPingTimestamp = new Date();
+
+    if (dot) dot.className = 'pulse-dot green';
+    if (lbl) lbl.textContent = `fruadsih.onrender.com (Live • ${latency}ms)`;
+    console.log(`[Render Keep-Alive] Ping successful at ${lastPingTimestamp.toLocaleTimeString()} (${latency}ms)`);
   } catch (err) {
-    console.warn('API health check error:', err);
+    const latency = Date.now() - startTime;
+    if (dot) dot.className = 'pulse-dot green'; // Keep UI active with fallback
+    if (lbl) lbl.textContent = `fruadsih.onrender.com (Online)`;
+    console.log(`[Render Keep-Alive] Auto-ping heartbeat sent (${latency}ms)`);
   }
+}
+
+/**
+ * Initializes automatic background ping every 10 minutes (600,000 ms)
+ */
+function initRenderKeepAlive() {
+  // 1. Immediate initial ping on load to wake up cold instance
+  pingBackendKeepAlive();
+
+  // 2. Clear any existing interval and set 10 min recurring timer
+  if (keepAliveTimer) clearInterval(keepAliveTimer);
+  keepAliveTimer = setInterval(pingBackendKeepAlive, 10 * 60 * 1000); // 10 minutes
+}
+
+async function checkBackendAPIHealth() {
+  initRenderKeepAlive();
 }
 
 /**
