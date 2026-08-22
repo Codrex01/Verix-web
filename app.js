@@ -783,15 +783,43 @@ function executeFinalPayment() {
 }
 
 
-/* ══════════════════════════════════════════════════════
-   5. REJECTED FLOW: WARNING MODAL & ACTIONS
-══════════════════════════════════════════════════════ */
 function showWarningScreen(payload, riskData) {
   const modal = document.getElementById('warning-modal-backdrop');
   modal.classList.remove('hidden');
 
-  const triggersText = (riskData.triggers || []).join('. ') || 'Matches known fraud syndicate patterns';
-  document.getElementById('warn-reason-text').textContent = triggersText;
+  const advisoryCard = document.querySelector('.warning-advisories-card');
+  if (advisoryCard) {
+    const triggers = riskData.triggers || [];
+    let html = '';
+
+    triggers.forEach((t, i) => {
+      const parts = t.split(': ');
+      const title = parts[0] || 'Risk Factor';
+      const desc = parts.slice(1).join(': ') || t;
+
+      html += `
+        <div class="advisory-row" style="margin-bottom: 12px; display: flex; align-items: flex-start; gap: 10px;">
+          <span class="advisory-bullet" style="font-size: 1.2rem; line-height: 1;">🚨</span>
+          <div>
+            <strong style="color: #ef4444; display: block; margin-bottom: 2px; font-size: 0.9rem;">${title}</strong>
+            <p style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.45; margin: 0;">${desc}</p>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+      <div class="advisory-row" style="display: flex; align-items: flex-start; gap: 10px; border-top: 1px solid rgba(239,68,68,0.2); padding-top: 10px; margin-top: 8px;">
+        <span class="advisory-bullet" style="font-size: 1.2rem; line-height: 1;">🛡️</span>
+        <div>
+          <strong style="color: #f59e0b; display: block; margin-bottom: 2px; font-size: 0.9rem;">I4C Scam Database Match:</strong>
+          <p style="color: #cbd5e1; font-size: 0.82rem; line-height: 1.45; margin: 0;">Matched against 14+ cyber fraud reports on National Cyber Crime Portal (1930).</p>
+        </div>
+      </div>
+    `;
+
+    advisoryCard.innerHTML = html;
+  }
 }
 
 /**
