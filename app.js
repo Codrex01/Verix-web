@@ -324,6 +324,66 @@ function initDashboard() {
   renderThreatIntel();
   renderBlacklist();
   checkBackendAPIHealth();
+  initRealtimeSseStream();
+}
+
+let sseConnection = null;
+
+/**
+ * 📡 Connect to Real-Time SSE Stream for Instant CURL / External Intents
+ */
+function initRealtimeSseStream() {
+  if (sseConnection) return;
+  try {
+    const isHttp = window.location.protocol.startsWith('http');
+    const sseUrl = isHttp ? `${window.location.origin}/api/v1/intent/stream` : 'http://localhost:10000/api/v1/intent/stream';
+    
+    sseConnection = new EventSource(sseUrl);
+    
+    sseConnection.onopen = () => {
+      console.log('📡 [Verix SSE] Live stream connected for real-time intents');
+    };
+
+    sseConnection.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data);
+        if (msg.type === 'NEW_INTENT' && msg.data) {
+          handleIncomingRealtimeIntent(msg.data);
+        }
+      } catch (e) {}
+    };
+
+    sseConnection.onerror = () => {
+      // Reconnects automatically
+    };
+  } catch (e) {
+    console.warn('SSE stream initialization skipped:', e);
+  }
+}
+
+/**
+ * ⚡ Handles Inbound Intent triggered by cURL or external device
+ */
+function handleIncomingRealtimeIntent(intent) {
+  // 1. Add to incoming queue
+  AppState.incomingQueue.unshift(intent);
+  loadSampleQueue();
+
+  // 2. Populate form fields
+  document.getElementById('input-vpa').value = intent.vpa || '';
+  document.getElementById('input-amt').value = intent.amount || '';
+  document.getElementById('input-name').value = intent.name || '';
+  document.getElementById('input-note').value = intent.note || '';
+  document.getElementById('input-active-call').checked = !!intent.activeCall;
+
+  // 3. Switch to pre-check view if not already there
+  switchView('pre-check');
+
+  // 4. Show alert toast
+  showToast(`⚡ REAL-TIME INTENT DETECTED: ₹${Number(intent.amount).toLocaleString()} to ${intent.vpa}`, 'warn');
+
+  // 5. Automatically trigger the threat check
+  executeRiskCheck(null);
 }
 
 /**

@@ -24,11 +24,14 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
+// Active SSE Clients for Real-Time Streaming
+let sseClients = [];
+
 const server = http.createServer((req, res) => {
   // CORS & Security Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, HEAD, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, HEAD, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') {
     res.writeHead(204);
@@ -40,6 +43,61 @@ const server = http.createServer((req, res) => {
   if (req.url === '/health' || req.url === '/api/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({ status: 'ok', service: 'verix-web', uptime: process.uptime() }));
+    return;
+  }
+
+  // 📡 Real-Time SSE Stream for Frontend Web Dashboard
+  if (req.url === '/api/v1/intent/stream' || req.url === '/api/intent/stream') {
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    });
+    res.write('data: {"type":"CONNECTED","message":"Verix Real-Time Stream Connected"}\n\n');
+    sseClients.push(res);
+
+    req.on('close', () => {
+      sseClients = sseClients.filter(client => client !== res);
+    });
+    return;
+  }
+
+  // ⚡ Webhook to trigger incoming UPI Intent from CURL / External Device
+  if ((req.url === '/api/v1/intent/incoming' || req.url === '/api/intent/incoming') && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body || '{}');
+        const intentData = {
+          id: 'intent-' + Date.now(),
+          vpa: payload.vpa || 'cbi.verification@paytm',
+          amount: parseFloat(payload.amount) || 45000,
+          name: payload.name || payload.recipientName || 'Suspected Scammer',
+          note: payload.note || 'Urgent payment demand',
+          activeCall: payload.activeCall !== undefined ? payload.activeCall : (payload.deviceContext?.activeCallDetected || true),
+          threatCategory: payload.threatCategory || 'Live Inbound Intent',
+          timestamp: new Date().toISOString()
+        };
+
+        // Broadcast to all connected frontend browser dashboards
+        const eventData = `data: ${JSON.stringify({ type: 'NEW_INTENT', data: intentData })}\n\n`;
+        sseClients.forEach(client => {
+          try { client.write(eventData); } catch (e) {}
+        });
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({
+          success: true,
+          message: 'Intent pushed live to dashboard!',
+          broadcastedToClients: sseClients.length,
+          data: intentData
+        }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, error: 'Invalid JSON payload' }));
+      }
+    });
     return;
   }
 
