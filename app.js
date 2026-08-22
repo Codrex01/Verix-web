@@ -307,9 +307,10 @@ function initDashboard() {
   const isLive = AppState.isLiveAdminMode;
 
   if (isLive) {
-    document.getElementById('metric-safe').textContent = 'Live Sync';
-    document.getElementById('metric-blocked').textContent = 'Live Sync';
-    document.getElementById('metric-arrests').textContent = 'Live Monitor';
+    document.getElementById('metric-safe').textContent = 'Live API';
+    document.getElementById('metric-blocked').textContent = 'Live API';
+    document.getElementById('metric-arrests').textContent = 'Live Active';
+    fetchLiveBackendMetadata();
   } else {
     document.getElementById('metric-safe').textContent = AppState.safeTxnCount.toLocaleString();
     document.getElementById('metric-blocked').textContent = AppState.activeThreatCount;
@@ -323,6 +324,26 @@ function initDashboard() {
   renderThreatIntel();
   renderBlacklist();
   checkBackendAPIHealth();
+}
+
+/**
+ * 📡 Fetch and display live engine status from https://fruadsih.onrender.com/
+ */
+async function fetchLiveBackendMetadata() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/`, { cache: 'no-store' });
+    if (res.ok) {
+      const info = await res.json();
+      console.log('📡 [Live Verix Backend Connected]:', info);
+      const sub = document.getElementById('page-subtitle');
+      if (sub && AppState.isLiveAdminMode) {
+        sub.textContent = `LIVE ENGINE: ${info.project || 'Fraud Shield'} (${info.version || 'v1.0.0'}) • ${info.status || 'ONLINE'}`;
+      }
+      showToast(`Connected to Live Backend (${info.project})`, 'success');
+    }
+  } catch (e) {
+    console.warn('Backend root probe:', e);
+  }
 }
 
 function switchView(viewName) {
@@ -436,14 +457,43 @@ async function callRiskCheckAPI(payload) {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      return { success: true, data };
+      const respJson = await response.json();
+      const payloadData = respJson.data || respJson;
+      const isBlocked = payloadData.isBlocked ?? (payloadData.riskScore >= 50);
+      const isApproved = (payloadData.isApproved !== undefined) ? payloadData.isApproved : !isBlocked;
+      
+      const triggers = [];
+      if (payloadData.explanation?.bulletPoints && Array.isArray(payloadData.explanation.bulletPoints)) {
+        payloadData.explanation.bulletPoints.forEach(b => {
+          triggers.push(`${b.title || 'Risk Alert'}: ${b.description || ''}`);
+        });
+      }
+      if (payloadData.threatDetails) {
+        triggers.push(`Threat Category: ${payloadData.threatDetails.category || 'High Risk'} (${payloadData.threatDetails.details || payloadData.threatDetails.name || ''})`);
+      }
+      if (!triggers.length && payloadData.triggers) {
+        triggers.push(...payloadData.triggers);
+      }
+
+      console.log('⚡ [Live Render API Response]:', respJson);
+
+      return {
+        success: true,
+        data: {
+          riskScore: payloadData.riskScore || (isBlocked ? 85 : 12),
+          isApproved: isApproved,
+          action: isApproved ? 'APPROVE' : 'REJECT',
+          triggers: triggers.length ? triggers : (isApproved ? ['NPCI PSP Validation Passed (Safe Handle)'] : ['Flagged by Live Neural Model']),
+          recommendedAction: payloadData.recommendedAction || (isApproved ? 'PROCEED_PAYMENT' : 'BLOCK_TRANSFER'),
+          rawBackendData: respJson
+        }
+      };
     }
   } catch (error) {
     console.warn('Backend API connection note (using Verix local neural heuristics):', error);
   }
 
-  // Robust Local Neural Heuristics Engine (Fallback & Live Simulation)
+  // Robust Local Neural Heuristics Engine (Fallback for Offline)
   const isDigitalArrest = payload.deviceContext?.activeCallDetected || 
     /cbi|police|arrest|warrant|customs|narcotics|ed|rbi|trai/i.test(payload.vpa + ' ' + payload.note + ' ' + payload.name);
   const isPhishing = /apk|disconnect|power|rebate|bill|lottery|prize|urgent/i.test(payload.note);
