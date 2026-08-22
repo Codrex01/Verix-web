@@ -252,6 +252,30 @@
       ════════════════════════════════════════════════ -->
       <section class="content-view" id="view-pre-check">
         
+        <!-- PROMINENT DUAL-OPTION SWITCHER BANNER -->
+        <div class="data-source-banner glassmorphism">
+          <div class="banner-title-area">
+            <span class="source-tag">DATA ENGINE SELECTION</span>
+            <h4>Choose Dashboard Data Mode:</h4>
+          </div>
+          <div class="mode-switch-tabs">
+            <button type="button" class="btn-mode-tab active" id="tab-static-mode" onclick="setDashboardMode(false)">
+              <span class="tab-icon">📊</span>
+              <div class="tab-meta">
+                <span class="tab-name">Option 1: Static Demo Stats</span>
+                <span class="tab-desc">For Judges & Pitch (Curated Case Studies)</span>
+              </div>
+            </button>
+            <button type="button" class="btn-mode-tab" id="tab-live-mode" onclick="setDashboardMode(true)">
+              <span class="tab-icon">📡</span>
+              <div class="tab-meta">
+                <span class="tab-name">Option 2: Live Backend Data</span>
+                <span class="tab-desc">Connected to https://fruadsih.onrender.com</span>
+              </div>
+            </button>
+          </div>
+        </div>
+
         <!-- Metrics bar -->
         <div class="metrics-grid">
           <div class="metric-card glassmorphism">

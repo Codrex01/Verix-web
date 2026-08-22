@@ -398,7 +398,76 @@ body {
 .mode-title { font-size: 0.76rem; font-weight: 800; letter-spacing: 0.05em; }
 .mode-action-sub { font-size: 0.64rem; opacity: 0.8; }
 
-/* ─── Buttons ─── */
+/* ══════════════════════════════════════════════════════
+   DUAL-OPTION DATA SWITCHER BANNER
+══════════════════════════════════════════════════════ */
+.data-source-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: radial-gradient(circle at 0% 50%, rgba(16, 185, 129, 0.08), rgba(15, 25, 52, 0.9));
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.banner-title-area { display: flex; flex-direction: column; gap: 2px; }
+.source-tag {
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  color: var(--emerald);
+  text-transform: uppercase;
+}
+.banner-title-area h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-white);
+}
+
+.mode-switch-tabs {
+  display: flex;
+  gap: 12px;
+}
+.btn-mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+}
+.btn-mode-tab:hover {
+  background: var(--bg-hover);
+  color: var(--text-white);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.btn-mode-tab.active {
+  background: rgba(16, 185, 129, 0.14);
+  border-color: var(--emerald);
+  color: #FFF;
+  box-shadow: 0 0 20px var(--emerald-glow);
+}
+.btn-mode-tab#tab-live-mode.active {
+  background: rgba(239, 68, 68, 0.14);
+  border-color: var(--crimson);
+  box-shadow: 0 0 20px var(--crimson-glow);
+}
+
+.tab-icon { font-size: 1.25rem; flex-shrink: 0; }
+.tab-meta { display: flex; flex-direction: column; }
+.tab-name { font-size: 0.82rem; font-weight: 800; }
+.tab-desc { font-size: 0.68rem; color: var(--text-muted); }
+.btn-mode-tab.active .tab-desc { color: var(--text-secondary); }
+
+/* ─── Topbar ─── */
 .btn-cyber-primary {
   width: 100%;
   display: flex;

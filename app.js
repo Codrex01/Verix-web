@@ -246,20 +246,27 @@ function togglePassVisibility() {
 }
 
 /**
- * 🔄 Toggle between Judge Demo Mode and Live Admin Mode on the fly from Topbar
+ * 🔄 Explicit Mode Setter from Banner Tabs: Option 1 (Static Demo) vs Option 2 (Live Backend)
  */
-function toggleActiveDashboardMode() {
-  AppState.isLiveAdminMode = !AppState.isLiveAdminMode;
-  AppState.session.role = AppState.isLiveAdminMode ? 'admin' : 'demo';
-  
+function setDashboardMode(isLive) {
+  AppState.isLiveAdminMode = isLive;
+  AppState.session.role = isLive ? 'admin' : 'demo';
+
   updateModeUI();
   initDashboard();
 
-  if (AppState.isLiveAdminMode) {
-    showToast('🔴 Switched to Live Real-Time Admin Mode (Real Render Backend)', 'warn');
+  if (isLive) {
+    showToast('📡 Option 2 Active: Live Real-Time Backend Data (fruadsih.onrender.com)', 'warn');
   } else {
-    showToast('🎭 Switched to Judge Pitch Demo Mode (Curated Static Intel)', 'success');
+    showToast('📊 Option 1 Active: Static Presentation Stats (Curated Demo Intel for Judges)', 'success');
   }
+}
+
+/**
+ * 🔄 Toggle between Judge Demo Mode and Live Admin Mode on the fly from Topbar
+ */
+function toggleActiveDashboardMode() {
+  setDashboardMode(!AppState.isLiveAdminMode);
 }
 
 function updateModeUI() {
@@ -269,16 +276,27 @@ function updateModeUI() {
   const title = document.getElementById('topbar-mode-title');
   const sub   = document.getElementById('topbar-mode-sub');
 
-  if (isLive) {
-    badge.className = 'mode-pill-badge live-mode';
-    icon.textContent = '🔴';
-    title.textContent = 'LIVE ADMIN MODE (REAL DATA)';
-    sub.textContent = 'Click to switch to Judge Demo';
-  } else {
-    badge.className = 'mode-pill-badge demo-mode';
-    icon.textContent = '🎭';
-    title.textContent = 'JUDGE PITCH DEMO MODE';
-    sub.textContent = 'Click to switch to Live Backend';
+  // Update Topbar badge
+  if (badge) {
+    if (isLive) {
+      badge.className = 'mode-pill-badge live-mode';
+      if (icon) icon.textContent = '🔴';
+      if (title) title.textContent = 'LIVE ADMIN MODE (REAL DATA)';
+      if (sub) sub.textContent = 'Click to switch to Judge Demo';
+    } else {
+      badge.className = 'mode-pill-badge demo-mode';
+      if (icon) icon.textContent = '🎭';
+      if (title) title.textContent = 'JUDGE PITCH DEMO MODE';
+      if (sub) sub.textContent = 'Click to switch to Live Backend';
+    }
+  }
+
+  // Update Banner Tabs
+  const tabStatic = document.getElementById('tab-static-mode');
+  const tabLive   = document.getElementById('tab-live-mode');
+  if (tabStatic && tabLive) {
+    tabStatic.classList.toggle('active', !isLive);
+    tabLive.classList.toggle('active', isLive);
   }
 }
 
