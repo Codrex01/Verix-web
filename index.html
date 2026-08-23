@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FraudShield — Explainable Real-Time Fraud Shield for UPI & Voice Phishing</title>
-  <meta name="description" content="Explainable Real-Time On-Device Fraud Shield for UPI, Voice Phishing & Social Engineering (Authorized Push Payment / APP Fraud Prevention).">
+  <title>Verix — Explainable Real-Time AI Fraud Shield for UPI & Voice Phishing</title>
+  <meta name="description" content="Verix: Explainable Real-Time On-Device AI Fraud Shield for UPI, Voice Phishing & Social Engineering (Authorized Push Payment / APP Fraud Prevention).">
   
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1382,8 +1382,8 @@
         </div>
         <div>
           <div class="brand-title">
-            FraudShield
-            <span class="brand-badge">SOAIDEATHON-S40</span>
+            Verix
+            <span class="brand-badge">v2.4 Live SIH</span>
           </div>
           <div style="font-size: 0.72rem; color: var(--text-secondary);">Explainable Real-Time On-Device UPI & Voice Phishing Defense</div>
         </div>
@@ -1554,7 +1554,7 @@
                 </div>
 
                 <div style="font-size: 0.73rem; color: #cbd5e1;">
-                  FraudShield detected critical coercion indicators:
+                  Verix AI Sentinel detected critical coercion indicators:
                 </div>
 
                 <!-- Explanation Reason Codes -->
@@ -2002,7 +2002,7 @@
       <div style="margin-bottom: 1.25rem;">
         <h2 style="font-size: 1.3rem; font-weight: 700;">Attack Tree Decomposition & Scam Taxonomy</h2>
         <p style="color: var(--text-secondary); font-size: 0.85rem;">
-          How FraudShield maps social engineering scripts into actionable on-device sensory vector signals.
+          How Verix AI maps social engineering scripts into actionable on-device sensory vector signals.
         </p>
       </div>
 
@@ -2183,7 +2183,7 @@
     <section id="sdk" class="tab-content">
       
       <div style="margin-bottom: 1.25rem;">
-        <h2 style="font-size: 1.3rem; font-weight: 700;">Ready-to-Integrate FraudShield SDK & Embed Snippets</h2>
+        <h2 style="font-size: 1.3rem; font-weight: 700;">Ready-to-Integrate Verix SDK & Embed Snippets</h2>
         <p style="color: var(--text-secondary); font-size: 0.85rem;">
           Drop-in zero-dependency JavaScript/TypeScript SDK and UPI App Companion wrapper for immediate production integration.
         </p>
@@ -2194,13 +2194,13 @@
         <!-- SDK Snippet -->
         <div class="panel-card">
           <div class="panel-header">
-            <span class="panel-title">1. Drop-In NPM / TS Client SDK (`fraudshield.ts`)</span>
+            <span class="panel-title">1. Drop-In NPM / TS Client SDK (`verix.ts`)</span>
             <button class="btn-copy" onclick="copyCode('codeSdk')">Copy Code</button>
           </div>
           <pre class="code-box" id="codeSdk"><code>import { scoreTransaction, SignalVector } from "./riskScorer";
 import { scanTranscript } from "./coercionLexicon";
 
-export class FraudShield {
+export class VerixShield {
   private weights = { /* default calibrated weights */ };
 
   async evaluateIntent(params: {
