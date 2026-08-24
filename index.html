@@ -3312,12 +3312,66 @@ export class VerixShield {
         .join("");
     }
 
-    // False-Positive Feedback Loop Execution
-    function submitAdminVerdict(verdict) {
+    // --- 6. Live Incident Management & False-Positive Feedback Loop ---
+    async function syncLiveBackendAppeals() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/institution/appeals`, { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.appeals && Array.isArray(data.appeals)) {
+            const mappedAppeals = data.appeals.map(a => ({
+              incidentId: a.appealId,
+              deviceHash: a.contactEmail || a.appellantType || 'Mobile User',
+              vpaHash: a.vpa || 'Unknown VPA',
+              amountBucket: `₹${Number(a.amount || 0).toLocaleString('en-IN')}`,
+              riskIndex: a.status === 'APPROVED_WHITELISTED' ? 12.0 : 85.0,
+              tier: a.status === 'APPROVED_WHITELISTED' ? 'SAFE' : 'CRITICAL',
+              reasonCodes: ['APP_DISPUTE_TICKET', a.reason ? `REASON: ${a.reason}` : 'USER_FALSE_POSITIVE_CLAIM', a.note ? `NOTE: ${a.note}` : 'LIVE_APP_TICKET'],
+              userAction: 'DISPUTED',
+              verdict: a.status === 'APPROVED_WHITELISTED' ? 'FALSE_POSITIVE' : (a.status === 'REJECTED' ? 'TRUE_POSITIVE' : null),
+              timestamp: a.submittedAt ? new Date(a.submittedAt).getTime() : Date.now(),
+              isLiveTicket: true
+            }));
+
+            // Keep default demo records and prepend live incoming tickets
+            const nonLive = incidentsStore.filter(i => !i.isLiveTicket && !mappedAppeals.some(m => m.incidentId === i.incidentId));
+            incidentsStore = [...mappedAppeals, ...nonLive];
+
+            if (!selectedIncidentId && incidentsStore.length > 0) {
+              selectedIncidentId = incidentsStore[0].incidentId;
+            }
+            renderIncidentsTable();
+            updateDrawer();
+          }
+        }
+      } catch (err) {
+        console.warn('[Live Appeals Sync Notice]:', err);
+      }
+    }
+
+    // False-Positive Feedback Loop Execution (With Live Render Backend Resolution Sync)
+    async function submitAdminVerdict(verdict) {
       const inc = incidentsStore.find(i => i.incidentId === selectedIncidentId);
       if (!inc) return;
 
       inc.verdict = verdict;
+
+      // Sync decision to Live Backend API so phone immediately updates
+      try {
+        const resolution = verdict === 'FALSE_POSITIVE' ? 'APPROVED_WHITELISTED' : 'REJECTED';
+        await fetch(`${API_BASE_URL}/api/v1/institution/appeals/${inc.incidentId}/resolve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resolution,
+            reviewerNotes: verdict === 'FALSE_POSITIVE' 
+              ? 'Whitelisted by Bank Officer #042 via Verix Web Console.' 
+              : 'Confirmed fraudulent syndicate handle. Maintained in I4C blacklist.'
+          })
+        });
+      } catch (e) {
+        console.warn('Backend resolution sync:', e);
+      }
 
       if (verdict === "FALSE_POSITIVE") {
         // Execute Δwi = -η · (FP_i / Flagged_i)
@@ -3499,6 +3553,8 @@ export class VerixShield {
       updateDrawer();
       updateUI();
       initKeepAliveAndSSE();
+      syncLiveBackendAppeals();
+      setInterval(syncLiveBackendAppeals, 3000);
     });
   </script>
 </body>
